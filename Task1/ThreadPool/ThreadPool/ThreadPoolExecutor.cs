@@ -10,6 +10,8 @@ namespace ThreadPool
     {
         private static readonly uint MinWorkersCount = 1;
 
+        private volatile bool _canEnqueueTasks;
+        private readonly Action _actionOnDispose;
         private readonly List<Thread> _workers;
         private readonly ConcurrentQueue<IPoolWork> _workToProcess;
         private readonly CancellationTokenSource _cancellationTokenSource;
@@ -19,6 +21,7 @@ namespace ThreadPool
             if (workersCount < MinWorkersCount)
                 throw new ArgumentException($"Workers count must be >= {MinWorkersCount}");
 
+            _canEnqueueTasks = true;
             _workers = new List<Thread>();
             _workToProcess = new ConcurrentQueue<IPoolWork>();
             _cancellationTokenSource = new CancellationTokenSource();
@@ -29,6 +32,11 @@ namespace ThreadPool
                 worker.Start();
                 _workers.Add(worker);
             }
+        }
+
+        public ThreadPoolExecutor(uint workersCount, Action actionOnDispose): this(workersCount)
+        {
+            _actionOnDispose = actionOnDispose;
         }
 
         public ITask<TResult> Enqueue<TResult>(Func<TResult> action)
@@ -42,11 +50,18 @@ namespace ThreadPool
 
         public void Dispose()
         {
+            _canEnqueueTasks = false;
             _cancellationTokenSource.Cancel();
+            _actionOnDispose?.Invoke();             // Cool hack to test abort feature
 
             foreach (var worker in _workers)
             {
                 worker.Join();
+            }
+
+            foreach (var task in _workToProcess)
+            {
+                task.Abort();
             }
             
             _cancellationTokenSource.Dispose();
@@ -85,6 +100,9 @@ namespace ThreadPool
 
         private void EnqueueWork(IPoolWork work)
         {
+            if (!_canEnqueueTasks)
+                throw new Exception($"ThreadPool {this} cannot enqueue tasks");
+                
             _workToProcess.Enqueue(work);
         }
         
@@ -92,6 +110,7 @@ namespace ThreadPool
         {
             public abstract void Execute();
             public abstract bool CanExecute();
+            public abstract void Abort();
         }
 
         /// <summary>
@@ -125,6 +144,11 @@ namespace ThreadPool
             public bool CanExecute()
             {
                 return _conditionToStart?.Invoke() ?? true;
+            }
+
+            public void Abort()
+            {
+                _wasAborted = true;
             }
 
             public bool IsCompleted()

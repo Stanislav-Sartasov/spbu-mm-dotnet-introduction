@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
@@ -7,12 +8,24 @@ namespace Tests
 {
     public class ThreadPoolTest
     {
-        private static readonly uint ThreadsCount = 4;
+        private static readonly uint ThreadsCount = 4; 
+        private IExecutor executor;
+
+        [SetUp]
+        public void SetupExecutor()
+        {
+            executor = new ThreadPoolExecutor(ThreadsCount);
+        }
+
+        [TearDown]
+        public void DisposeExecutor()
+        {
+            executor.Dispose();
+        }
         
         [Test]
         public void TestThreadsCount()
         {
-            var executor = new ThreadPoolExecutor(ThreadsCount);
             var tokenSource = new CancellationTokenSource();
             var tasks = new List<ITask<int>>();
             var ids = new HashSet<int>();
@@ -40,14 +53,13 @@ namespace Tests
 
             Assert.AreEqual( ThreadsCount, ids.Count);
             
-            executor.Dispose();
+            tokenSource.Dispose();
         }
 
         [Test]
         public void TestTaskEnqueue()
         {
             var maxNum = 100;
-            var executor = new ThreadPoolExecutor(ThreadsCount);
 
             int Evaluate()
             {
@@ -64,20 +76,102 @@ namespace Tests
             var task = executor.Enqueue(Evaluate);
             
             Assert.AreEqual(task.GetResult(), Evaluate());
+        }
+
+        [Test]
+        public void TestLargeTasksAmount()
+        {
+            var tasksCount = ThreadsCount * 1000;
+            var tasks = new List<ITask<long>>();
+
+            for (int i = 0; i < tasksCount; i++)
+            {
+                var local = i;
+                var task = executor.Enqueue(() =>
+                {
+                    Thread.Sleep(1);
+                    return local % ThreadsCount;
+                });
+                tasks.Add(task);
+            }
             
-            executor.Dispose();
+            for (int i = 0; i < tasksCount; i++)
+            {
+                Assert.AreEqual(tasks[i].GetResult(), i % ThreadsCount);   
+            }
         }
 
         [Test]
         public void TestTaskContinueWith()
         {
-            
+            var tasksCount = ThreadsCount * 1000;
+            var firstTasks = new List<ITask<int>>();
+            var secondTasks = new List<ITask<String>>();
+
+            for (int i = 0; i < tasksCount; i++)
+            {
+                var local = i;
+                var task = executor.Enqueue(() =>
+                {
+                    Thread.Sleep(2);
+                    return local + local;
+                });
+                
+                firstTasks.Add(task);
+            }
+
+            foreach (var task in firstTasks)
+            {
+                var newTask = task.ContinueWith((i => (i * i).ToString()));
+                secondTasks.Add(newTask);
+            }
+
+            for (int i = 0; i < tasksCount; i++)
+            {
+                Assert.AreEqual(secondTasks[i].GetResult(), ((i + i) * (i + i)).ToString());
+            }
         }
 
         [Test]
         public void TestTaskAbort()
         {
+            var waitTokenSource = new CancellationTokenSource();
+            var tasksToAbort = new List<ITask<int>>();
+            var tasksToAbortCount = ThreadsCount * 100;
+            var executorToAbort = new ThreadPoolExecutor(ThreadsCount, () => waitTokenSource.Cancel());
             
+            for (int i = 0; i < ThreadsCount; i++)
+            {
+                executorToAbort.Enqueue(() =>
+                {
+                    waitTokenSource.Token.WaitHandle.WaitOne();
+                    return 0;
+                });
+            }
+
+            for (int i = 0; i < tasksToAbortCount; i++)
+            {
+                var task = executorToAbort.Enqueue(() => 0);
+                tasksToAbort.Add(task);
+            }
+
+            var abortWaitTask = executor.Enqueue(() =>
+            {
+                foreach (var task in tasksToAbort)
+                {
+                    Assert.Throws<AggregateException>(() =>
+                    {
+                        task.GetResult();
+                    });
+                }
+
+                return 0;
+            });
+            
+            executorToAbort.Dispose();
+            waitTokenSource.Dispose();
+
+            Assert.AreEqual(abortWaitTask.GetResult(), 0);
         }
     }
 }
