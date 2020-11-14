@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace ThreadPool
@@ -8,9 +9,9 @@ namespace ThreadPool
     public class ThreadPoolExecutor: IExecutor
     {
         private static readonly uint MinWorkersCount = 1;
-        
+
         private readonly List<Thread> _workers;
-        private readonly ConcurrentQueue<IPoolWork> _poolWorks;
+        private readonly ConcurrentQueue<IPoolWork> _workToProcess;
         private readonly CancellationTokenSource _cancellationTokenSource;
         
         public ThreadPoolExecutor(uint workersCount)
@@ -19,7 +20,7 @@ namespace ThreadPool
                 throw new ArgumentException($"Workers count must be >= {MinWorkersCount}");
 
             _workers = new List<Thread>();
-            _poolWorks = new ConcurrentQueue<IPoolWork>();
+            _workToProcess = new ConcurrentQueue<IPoolWork>();
             _cancellationTokenSource = new CancellationTokenSource();
 
             for (var i = 0; i < workersCount; i++)
@@ -34,7 +35,7 @@ namespace ThreadPool
         {
             var poolTask = new PoolTask<TResult>(action, null, this);
 
-            _poolWorks.Enqueue(poolTask);
+            EnqueueWork(poolTask);
             
             return poolTask;
         }
@@ -62,7 +63,7 @@ namespace ThreadPool
             
             while (!token.IsCancellationRequested)
             {
-                if (_poolWorks.TryDequeue(out var work))
+                if (_workToProcess.TryDequeue(out var work))
                 {
                     if (work.CanExecute())
                     {
@@ -70,7 +71,7 @@ namespace ThreadPool
                     }
                     else
                     {
-                        _poolWorks.Enqueue(work);
+                        _workToProcess.Enqueue(work);
                     }
                 }
                 else
@@ -78,6 +79,13 @@ namespace ThreadPool
                     Thread.Yield();
                 }
             }   
+            
+            Debug.Print($"Safely terminate thread: {Thread.CurrentThread.ManagedThreadId}");
+        }
+
+        private void EnqueueWork(IPoolWork work)
+        {
+            _workToProcess.Enqueue(work);
         }
         
         private interface IPoolWork
@@ -86,6 +94,10 @@ namespace ThreadPool
             public abstract bool CanExecute();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
         private class PoolTask<TResult>: ITask<TResult>, IPoolWork
         {
             private volatile bool _isCompleted;
@@ -143,7 +155,7 @@ namespace ThreadPool
                 TNewResult Action() => nextAction(GetResult());
                 var poolTask = new PoolTask<TNewResult>(Action, IsCompleted, _executor);
 
-                _executor._poolWorks.Enqueue(poolTask);
+                _executor.EnqueueWork(poolTask);
                 
                 return poolTask;
             }
