@@ -174,5 +174,20 @@ namespace Tests
 
             Assert.AreEqual(abortWaitTask.GetResult(), 0);
         }
+
+        [Test]
+        public void TestTaskAggregateException()
+        {
+            var task = executor.Enqueue((() =>
+            {
+                throw new Exception("Uppps!");
+                return 0;
+            }));
+
+            Assert.Throws<AggregateException>((() =>
+            {
+                task.GetResult();
+            }));
+        }
     }
 }

@@ -61,7 +61,7 @@ namespace ThreadPool
 
             foreach (var task in _workToProcess)
             {
-                task.Abort();
+                task.Abort(new Exception($"{this} was disposed. Enqueued tasks won't be processed"));
             }
             
             _cancellationTokenSource.Dispose();
@@ -101,7 +101,7 @@ namespace ThreadPool
         private void EnqueueWork(IPoolWork work)
         {
             if (!_canEnqueueTasks)
-                throw new Exception($"ThreadPool {this} cannot enqueue tasks");
+                throw new Exception($"{this} cannot enqueue tasks");
                 
             _workToProcess.Enqueue(work);
         }
@@ -110,17 +110,14 @@ namespace ThreadPool
         {
             public abstract void Execute();
             public abstract bool CanExecute();
-            public abstract void Abort();
+            public abstract void Abort(Exception cause);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
         private class PoolTask<TResult>: ITask<TResult>, IPoolWork
         {
             private volatile bool _isCompleted;
             private volatile bool _wasAborted;
+            private volatile AggregateException _abortCause;
             private readonly Func<bool> _conditionToStart;
             private readonly Func<TResult> _action;
             private readonly ThreadPoolExecutor _executor;
@@ -137,8 +134,16 @@ namespace ThreadPool
 
             public void Execute()
             {
-                _result = _action();
-                _isCompleted = true;
+                try
+                {
+                    _result = _action();
+                    _isCompleted = true;
+                }
+                catch (Exception e)
+                {
+                    _abortCause = new AggregateException($"{this} execution was finished with exception", e);
+                    _wasAborted = true;
+                }   
             }
 
             public bool CanExecute()
@@ -146,8 +151,9 @@ namespace ThreadPool
                 return _conditionToStart?.Invoke() ?? true;
             }
 
-            public void Abort()
+            public void Abort(Exception cause)
             {
+                _abortCause = new AggregateException($"{this} was explicitly aborted, because of", cause);
                 _wasAborted = true;
             }
 
@@ -161,7 +167,7 @@ namespace ThreadPool
                 while (!_isCompleted)
                 {
                     if (_wasAborted)
-                        throw new AggregateException($"Task {ToString()} was aborted");
+                        throw _abortCause;
 
                     Thread.Yield();
                 }
