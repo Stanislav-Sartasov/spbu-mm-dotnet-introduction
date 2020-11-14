@@ -8,7 +8,8 @@ namespace Tests
 {
     public class ThreadPoolTest
     {
-        private static readonly uint ThreadsCount = 4; 
+        private static readonly uint ThreadsCount = 4;
+        private static readonly uint ThreadsMultiplyFactor = 1000;
         private IExecutor executor;
 
         [SetUp]
@@ -81,7 +82,7 @@ namespace Tests
         [Test]
         public void TestLargeTasksAmount()
         {
-            var tasksCount = ThreadsCount * 1000;
+            var tasksCount = ThreadsCount * ThreadsMultiplyFactor;
             var tasks = new List<ITask<long>>();
 
             for (int i = 0; i < tasksCount; i++)
@@ -104,7 +105,7 @@ namespace Tests
         [Test]
         public void TestTaskContinueWith()
         {
-            var tasksCount = ThreadsCount * 1000;
+            var tasksCount = ThreadsCount * ThreadsMultiplyFactor;
             var firstTasks = new List<ITask<int>>();
             var secondTasks = new List<ITask<String>>();
 
@@ -137,7 +138,7 @@ namespace Tests
         {
             var waitTokenSource = new CancellationTokenSource();
             var tasksToAbort = new List<ITask<int>>();
-            var tasksToAbortCount = ThreadsCount * 100;
+            var tasksToAbortCount = ThreadsCount * ThreadsMultiplyFactor;
             var executorToAbort = new ThreadPoolExecutor(ThreadsCount, () => waitTokenSource.Cancel());
             
             for (int i = 0; i < ThreadsCount; i++)
