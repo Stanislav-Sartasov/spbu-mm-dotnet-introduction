@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace ThreadPool
 {
-    public class ThreadPoolExecutor: IExecutor
+    public class ThreadPoolTaskExecutor: ITaskExecutor
     {
         private static readonly uint MinWorkersCount = 1;
 
@@ -16,7 +16,7 @@ namespace ThreadPool
         private readonly ConcurrentQueue<IPoolWork> _workToProcess;
         private readonly CancellationTokenSource _cancellationTokenSource;
         
-        public ThreadPoolExecutor(uint workersCount)
+        public ThreadPoolTaskExecutor(uint workersCount)
         {
             if (workersCount < MinWorkersCount)
                 throw new ArgumentException($"Workers count must be >= {MinWorkersCount}");
@@ -34,7 +34,7 @@ namespace ThreadPool
             }
         }
 
-        public ThreadPoolExecutor(uint workersCount, Action actionOnDispose): this(workersCount)
+        public ThreadPoolTaskExecutor(uint workersCount, Action actionOnDispose): this(workersCount)
         {
             _actionOnDispose = actionOnDispose;
         }
@@ -120,16 +120,16 @@ namespace ThreadPool
             private volatile AggregateException _abortCause;
             private readonly Func<bool> _conditionToStart;
             private readonly Func<TResult> _action;
-            private readonly ThreadPoolExecutor _executor;
+            private readonly ThreadPoolTaskExecutor _taskExecutor;
             private TResult _result;
     
-            public PoolTask(Func<TResult> action, Func<bool> conditionToStart, ThreadPoolExecutor executor)
+            public PoolTask(Func<TResult> action, Func<bool> conditionToStart, ThreadPoolTaskExecutor taskExecutor)
             {
                 _isCompleted = false;
                 _wasAborted = false;
                 _action = action;
                 _conditionToStart = conditionToStart;
-                _executor = executor;
+                _taskExecutor = taskExecutor;
             }
 
             public void Execute()
@@ -175,17 +175,12 @@ namespace ThreadPool
                 return _result;
             }
 
-            public Func<TResult> GetAction()
-            {
-                return _action;
-            }
-
             public ITask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> nextAction)
             {
                 TNewResult Action() => nextAction(GetResult());
-                var poolTask = new PoolTask<TNewResult>(Action, IsCompleted, _executor);
+                var poolTask = new PoolTask<TNewResult>(Action, IsCompleted, _taskExecutor);
 
-                _executor.EnqueueWork(poolTask);
+                _taskExecutor.EnqueueWork(poolTask);
                 
                 return poolTask;
             }

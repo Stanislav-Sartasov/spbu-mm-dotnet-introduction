@@ -10,18 +10,20 @@ namespace Tests
     {
         private static readonly uint ThreadsCount = 4;
         private static readonly uint ThreadsMultiplyFactor = 1000;
-        private IExecutor executor;
+        private ITaskExecutor _taskExecutor;
 
         [SetUp]
         public void SetupExecutor()
         {
-            executor = new ThreadPoolExecutor(ThreadsCount);
+            // Start main task executor for tests needs
+            _taskExecutor = new ThreadPoolTaskExecutor(ThreadsCount);
         }
 
         [TearDown]
         public void DisposeExecutor()
         {
-            executor.Dispose();
+            // Properly shutdown executor and join all the worker threads
+            _taskExecutor.Dispose();
         }
         
         [Test]
@@ -34,7 +36,7 @@ namespace Tests
             
             for (uint i = 0; i < 4; i++)
             {
-                var task = executor.Enqueue((() =>
+                var task = _taskExecutor.Enqueue((() =>
                 {
                     Interlocked.Increment(ref started);
                     tokenSource.Token.WaitHandle.WaitOne();                    
@@ -74,7 +76,7 @@ namespace Tests
                 return sum;
             }
 
-            var task = executor.Enqueue(Evaluate);
+            var task = _taskExecutor.Enqueue(Evaluate);
             
             Assert.AreEqual(task.GetResult(), Evaluate());
         }
@@ -88,7 +90,7 @@ namespace Tests
             for (int i = 0; i < tasksCount; i++)
             {
                 var local = i;
-                var task = executor.Enqueue(() =>
+                var task = _taskExecutor.Enqueue(() =>
                 {
                     Thread.Sleep(1);
                     return local % ThreadsCount;
@@ -112,7 +114,7 @@ namespace Tests
             for (int i = 0; i < tasksCount; i++)
             {
                 var local = i;
-                var task = executor.Enqueue(() =>
+                var task = _taskExecutor.Enqueue(() =>
                 {
                     Thread.Sleep(2);
                     return local + local;
@@ -139,7 +141,7 @@ namespace Tests
             var waitTokenSource = new CancellationTokenSource();
             var tasksToAbort = new List<ITask<int>>();
             var tasksToAbortCount = ThreadsCount * ThreadsMultiplyFactor;
-            var executorToAbort = new ThreadPoolExecutor(ThreadsCount, () => waitTokenSource.Cancel());
+            var executorToAbort = new ThreadPoolTaskExecutor(ThreadsCount, () => waitTokenSource.Cancel());
             
             for (int i = 0; i < ThreadsCount; i++)
             {
@@ -156,7 +158,7 @@ namespace Tests
                 tasksToAbort.Add(task);
             }
 
-            var abortWaitTask = executor.Enqueue(() =>
+            var abortWaitTask = _taskExecutor.Enqueue(() =>
             {
                 foreach (var task in tasksToAbort)
                 {
@@ -178,11 +180,7 @@ namespace Tests
         [Test]
         public void TestTaskAggregateException()
         {
-            var task = executor.Enqueue((() =>
-            {
-                throw new Exception("Uppps!");
-                return 0;
-            }));
+            var task = _taskExecutor.Enqueue<int>((() => throw new Exception("Uppps!")));
 
             Assert.Throws<AggregateException>((() =>
             {
