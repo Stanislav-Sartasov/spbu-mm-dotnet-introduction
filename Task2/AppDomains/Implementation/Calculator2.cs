@@ -1,6 +1,7 @@
-using System;
+﻿using System;
+using System.IO;
 using System.Threading;
-using AppDomains;
+using Interface;
 
 namespace Implementation
 {
@@ -14,6 +15,16 @@ namespace Implementation
         public int Sum(int a, int b)
         {
             Console.Out.WriteLine($"{this} Sum({a}, {b})");
+            
+            try
+            {
+                var file = new FileStream("my_file.txt", FileMode.Create);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
             return a + b;
         }
     }

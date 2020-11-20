@@ -1,74 +1,81 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
-using AppDomains;
+using System.Security;
+using System.Security.Permissions;
+using System.Security.Policy;
+using Interface;
 
 namespace Loader
 {
-    public class ImplementationLoader<TBaseClass>
+    public class ImplementationLoader: IDisposable
     {
-        private readonly List<TBaseClass> _instances;
-        private readonly string _assemblyPath;
-        
-        public List<TBaseClass> Instances  => _instances;
-        
+        private readonly Internal _internal;
+        private readonly AppDomain _internalDomain;
+        public List<ICalculator> Instances { get; }
+
         public ImplementationLoader(string assemblyPath)
         {
-            _assemblyPath = assemblyPath;
-
-            List<string> implementationsNames = GetImplementationsNames();
-
-            foreach (var name in implementationsNames)
-            {
-                Console.Out.WriteLine(name);
-            }
+            var assemblyName = typeof(Internal).Assembly.FullName ?? "";
+            var typeName = typeof(Internal).FullName ?? ""; 
+            
+            _internalDomain = AppDomain.CreateDomain("AppDomain:Internal");
+            _internal = (Internal) _internalDomain.CreateInstanceAndUnwrap(assemblyName, typeName);
+            Instances = _internal.Load(assemblyPath);
         }
 
-        private List<string> GetImplementationsNames()
+        public void Dispose()
         {
-            var currentAssemblyName = Assembly.GetAssembly(typeof(ImplementationsFinder))?.GetName().Name ?? "";
-            var objectName = typeof(ImplementationsFinder).AssemblyQualifiedName ?? "";
-            var implementationsDomain = AppDomain.CreateDomain("AppDomain:ReflectionInfoMining");
-            
-            var finder = (ImplementationsFinder)
-                implementationsDomain.CreateInstanceAndUnwrap(currentAssemblyName, objectName,
-                    new object[] {_assemblyPath, typeof(TBaseClass)});
-
-            var implementationsList = finder.ImplementationsNames;
-            
-            AppDomain.Unload(implementationsDomain);
-
-            return implementationsList;
+            _internal.Dispose();
+            AppDomain.Unload(_internalDomain);
         }
-
-        private class ImplementationsFinder : MarshalByRefObject
+        
+        private class Internal : MarshalByRefObject, IDisposable
         {
-            private readonly string _assemblyPath;
-            private readonly Type _baseType;
-            private readonly List<string> _implementationsNames;
+            private List<ICalculator> _instances;
+            private List<AppDomain> _domains;
 
-            public List<string> ImplementationsNames => _implementationsNames;
-
-            public ImplementationsFinder(string assemblyPath, Type baseType)
+            public Internal()
             {
-                _assemblyPath = assemblyPath;
-                _baseType = baseType;
-                _implementationsNames = Find();
+                _instances = new List<ICalculator>();
+                _domains = new List<AppDomain>();
             }
-
-            private List<string> Find()
+            public List<ICalculator> Load(string assemblyPath)
             {
-                var assembly = Assembly.ReflectionOnlyLoadFrom(_assemblyPath);
-                var found = new List<string>();    
+                var assembly = Assembly.LoadFrom(assemblyPath);
                 
                 foreach (var type in assembly.GetTypes())
                 {
-                    if (type.IsSubclassOf(_baseType))
-                        found.Add(type.AssemblyQualifiedName);
+                    if (typeof(ICalculator).IsAssignableFrom(type))
+                    {
+                        string assemblyName = assembly.FullName;
+                        string typeName = type.FullName;
+                        
+                        var evidence = new Evidence();
+                        var permissionSet = new PermissionSet(PermissionState.None);
+                        permissionSet.AddPermission(new SecurityPermission(SecurityPermissionFlag.Execution));
+                        var setup = new AppDomainSetup { ApplicationBase = Path.GetFullPath(Environment.CurrentDirectory) };
+                
+                        var domain = AppDomain.CreateDomain($"Domain:{typeName}", evidence, setup, permissionSet);
+                        var instance = (ICalculator) domain.CreateInstanceAndUnwrap(assemblyName, typeName);
+                        
+                        _domains.Add(domain);
+                        _instances.Add(instance);
+                    }
                 }
 
-                return found;
+                return _instances;
+            }
+
+            public void Dispose()
+            {
+                foreach (var domain in _domains)
+                {
+                    AppDomain.Unload(domain);
+                }
             }
         }
+
     }
 }

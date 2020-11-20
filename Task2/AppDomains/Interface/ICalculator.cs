@@ -1,7 +1,7 @@
-﻿namespace AppDomains
+﻿namespace Interface
 {
     public interface ICalculator
-    {
-        public abstract int Sum(int a, int b);
+    { 
+        public int Sum(int a, int b);
     }
 }
