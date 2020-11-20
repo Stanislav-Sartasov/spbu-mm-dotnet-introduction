@@ -7,6 +7,6 @@ namespace ThreadPool
     /// </summary>
     public interface ITaskExecutor: IDisposable
     {
-        public abstract ITask<TResult> Enqueue<TResult>(Func<TResult> action);
+        public ITask<TResult> Enqueue<TResult>(Func<TResult> action);
     }
 }

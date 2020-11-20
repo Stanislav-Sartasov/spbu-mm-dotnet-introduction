@@ -108,9 +108,9 @@ namespace ThreadPool
         
         private interface IPoolWork
         {
-            public abstract void Execute();
-            public abstract bool CanExecute();
-            public abstract void Abort(Exception cause);
+            public void Execute();
+            public bool CanExecute();
+            public void Abort(Exception cause);
         }
 
         private class PoolTask<TResult>: ITask<TResult>, IPoolWork
