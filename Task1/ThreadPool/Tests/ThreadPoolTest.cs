@@ -10,8 +10,10 @@ namespace Tests
     {
         private static readonly uint ThreadsCount = 4;
         private static readonly uint ThreadsMultiplyFactor = 1000;
-        private ITaskExecutor _taskExecutor;
+        private ThreadPoolTaskExecutor _taskExecutor;
 
+        private ITaskExecutor Executor => _taskExecutor;
+        
         [SetUp]
         public void SetupExecutor()
         {
@@ -36,7 +38,7 @@ namespace Tests
             
             for (uint i = 0; i < 4; i++)
             {
-                var task = _taskExecutor.Enqueue((() =>
+                var task = Executor.Enqueue((() =>
                 {
                     Interlocked.Increment(ref started);
                     tokenSource.Token.WaitHandle.WaitOne();                    
@@ -76,7 +78,7 @@ namespace Tests
                 return sum;
             }
 
-            var task = _taskExecutor.Enqueue(Evaluate);
+            var task = Executor.Enqueue(Evaluate);
             
             Assert.AreEqual(task.GetResult(), Evaluate());
         }
@@ -90,7 +92,7 @@ namespace Tests
             for (int i = 0; i < tasksCount; i++)
             {
                 var local = i;
-                var task = _taskExecutor.Enqueue(() =>
+                var task = Executor.Enqueue(() =>
                 {
                     Thread.Sleep(1);
                     return local % ThreadsCount;
@@ -114,7 +116,7 @@ namespace Tests
             for (int i = 0; i < tasksCount; i++)
             {
                 var local = i;
-                var task = _taskExecutor.Enqueue(() =>
+                var task = Executor.Enqueue(() =>
                 {
                     Thread.Sleep(2);
                     return local + local;
@@ -158,7 +160,7 @@ namespace Tests
                 tasksToAbort.Add(task);
             }
 
-            var abortWaitTask = _taskExecutor.Enqueue(() =>
+            var abortWaitTask = Executor.Enqueue(() =>
             {
                 foreach (var task in tasksToAbort)
                 {
@@ -180,7 +182,7 @@ namespace Tests
         [Test]
         public void TestTaskAggregateException()
         {
-            var task = _taskExecutor.Enqueue<int>((() => throw new Exception("Uppps!")));
+            var task = Executor.Enqueue<int>((() => throw new Exception("Uppps!")));
 
             Assert.Throws<AggregateException>((() =>
             {

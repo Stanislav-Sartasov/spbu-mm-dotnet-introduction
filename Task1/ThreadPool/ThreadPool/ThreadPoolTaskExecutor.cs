@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace ThreadPool
 {
-    public class ThreadPoolTaskExecutor: ITaskExecutor
+    public class ThreadPoolTaskExecutor: ITaskExecutor, IDisposable
     {
         private static readonly uint MinWorkersCount = 1;
 
@@ -108,9 +108,9 @@ namespace ThreadPool
         
         private interface IPoolWork
         {
-            public void Execute();
-            public bool CanExecute();
-            public void Abort(Exception cause);
+            void Execute();
+            bool CanExecute();
+            void Abort(Exception cause);
         }
 
         private class PoolTask<TResult>: ITask<TResult>, IPoolWork

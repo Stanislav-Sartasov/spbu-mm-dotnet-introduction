@@ -9,9 +9,9 @@ namespace ThreadPool
     /// </summary>
     /// <typeparam name="TResult"></typeparam>
     public interface ITask<out TResult>
-    {
-        public bool IsCompleted();
-        public TResult GetResult();
-        public ITask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> nextAction);
+    { 
+        bool IsCompleted(); 
+        TResult GetResult();
+        ITask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> nextAction);
     }
 }
