@@ -1,7 +1,20 @@
+using System;
+using System.Threading;
+using AppDomains;
+
 namespace Implementation
 {
-    public class Calculator2
+    public class Calculator2: MarshalByRefObject, ICalculator
     {
-        
+        public override string ToString()
+        {
+            return $"{Thread.GetDomain().FriendlyName} Calculator2:ICalculator impl";
+        }
+
+        public int Sum(int a, int b)
+        {
+            Console.Out.WriteLine($"{this} Sum({a}, {b})");
+            return a + b;
+        }
     }
 }

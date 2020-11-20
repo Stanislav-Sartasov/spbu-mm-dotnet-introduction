@@ -80,7 +80,6 @@ namespace ExpressionTrees
 
             body = Expression.Block(localVars, body, result);
 
-            var fun = Expression.Lambda<Func<TObject, TField>>(body, inputParam).Compile();
             return Expression.Lambda<Func<TObject,TField>>(body, inputParam).Compile();
         }
     }
