@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using App;
 
 namespace Test
 {
@@ -7,7 +7,8 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            App.App.InvokeSumMethods("CalculatorImpl");
+            var app = new AppBase();
+            app.Start("CalculatorImpl");
         }
     }
 }

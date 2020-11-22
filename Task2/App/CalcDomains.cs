@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Security;
-using System.Security.Policy;
 using System.Security.Permissions;
-using System.IO;
-using CalculatorInterface;
 using System.Reflection;
 using System.Collections.Generic;
+using CalculatorInterface;
 
 namespace App
 {
-    public class App
+    class CalcDomains : MarshalByRefObject
     {
-
-        public static void InvokeSumMethods(string assemblyName)
+        public void InvokeSumMethods(string assemblyName)
         {
+            Console.WriteLine($"InvokeSumMethods(..) domain: {AppDomain.CurrentDomain.FriendlyName}{Environment.NewLine}");
+
             Assembly asmb = Assembly.Load(assemblyName);
             var domains = new List<AppDomain>();
             var impls = new List<ICalculator>();

@@ -8,7 +8,7 @@ namespace CalculatorImpl
     {
         public int Sum(int a, int b)
         {
-            Console.WriteLine($"Called from class: {GetType()}. Domain: {AppDomain.CurrentDomain.FriendlyName}");
+            Console.WriteLine($"Sum(..) is called from: {GetType()}. Domain: {AppDomain.CurrentDomain.FriendlyName}");
 
             try
             {
