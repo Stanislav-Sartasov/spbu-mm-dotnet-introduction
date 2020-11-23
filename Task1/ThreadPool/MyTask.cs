@@ -1,7 +1,7 @@
 using System;
 
 namespace ThreadPool {
-    internal class MyTask<TResult> : IMyTask<TResult> {
+    public class MyTask<TResult> : IMyTask<TResult> {
         private volatile bool _isCompleted;
         private volatile AggregateException _exception;
         private TResult _result;
@@ -31,7 +31,7 @@ namespace ThreadPool {
 
         private void Run() {
             try {
-                _func();
+                _result = _func();
                 _isCompleted = true;
             }
             catch (Exception e) {
