@@ -10,8 +10,11 @@ namespace Task1
     {
         private const int _defaultSize = 10;
         private readonly List<Thread> _pool;
-       
+        private readonly object _lock = new object();
+        private bool _isDisposed = false;
+
         private readonly BlockingCollection<Action> _waitingTasks = new BlockingCollection<Action>();
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         public int Size { get; }
 
         public ThreadPool(int size)
@@ -34,9 +37,43 @@ namespace Task1
         public ThreadPool() : this(_defaultSize)
         {
         }
+
+        public void Enqueue<TResult>(IMyTask<TResult> task)
+        {
+            CheckDisposed();
+            if (task == null)
+            {
+                throw new ArgumentNullException(nameof(task), "Cannot run null in ThreadPool");
+            }
+            _waitingTasks.Add(task.Run);
+        }
+
+        public void CheckDisposed()
+        {
+            lock (_lock)
+            {
+                if (_isDisposed)
+                {
+                    throw new ObjectDisposedException(nameof(ThreadPool), "The ThreadPool has been disposed.");
+                }
+            }
+        }
+
         public void Dispose()
         {
-            throw new NotImplementedException();
+            lock (_lock)
+            {
+                if (_isDisposed)
+                    return;
+
+                _isDisposed = true;
+                _waitingTasks.CompleteAdding();
+                foreach(var thread in _pool)
+                {
+                    thread.Join();
+                }
+                _waitingTasks.Dispose();
+            }
         }
 
         private void Work()
