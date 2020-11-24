@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 
 namespace Task1.ThreadPoolTests
@@ -123,7 +122,7 @@ namespace Task1.ThreadPoolTests
         [Test]
         public void AddMoreTasksThanThreadPoolSizeTest()
         {
-            const int tasksCount = threadPoolSize * 2;
+            const int tasksCount = threadPoolSize * 20;
             var threadPool = new ThreadPool(threadPoolSize);
             var tasks = new List<MyTask<int>>();
             for (var i = 0; i < tasksCount; ++i)
