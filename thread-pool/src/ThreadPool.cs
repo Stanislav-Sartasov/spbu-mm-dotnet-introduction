@@ -29,10 +29,15 @@ namespace ThreadPool
                 threads[i].Start();
         }
 
-        public void Enqueue<TResult>(IMyTask<TResult> task)
+        public IMyTask<TResult> Enqueue<TResult>(Func<TResult> f)
         {
             if (!cancellationTokenSource.IsCancellationRequested) 
+            {
+                var task = new ThreadPoolTask<TResult>(f, this);
                 tasks.Enqueue(task);
+                return task;
+            }
+            throw new Exception("Unable to enqueue task after disposing");
         }
 
         public void Dispose() 

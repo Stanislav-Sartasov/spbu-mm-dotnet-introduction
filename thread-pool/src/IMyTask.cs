@@ -2,7 +2,7 @@ using System;
 
 namespace ThreadPool 
 {
-    public interface IMyTask<TResult>: IRunnable
+    public interface IMyTask<TResult>
     {
         bool IsCompleted 
         {

@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace ThreadPool 
 {
-    public class ThreadPoolTask<TResult>: IMyTask<TResult>
+    public class ThreadPoolTask<TResult>: IMyTask<TResult>, IRunnable
     {
         private Func<TResult> function;
         private ThreadPool threadPool;
@@ -60,13 +60,11 @@ namespace ThreadPool
 
         public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> continuation)
         {
-            IMyTask<TNewResult> newTask = new ThreadPoolTask<TNewResult>(
+            var newTask = threadPool.Enqueue(
                 () => {
                     return continuation(this.Result);
-                },
-                threadPool
+                }
             );
-            threadPool.Enqueue(newTask);
             return newTask;
         }
     }
