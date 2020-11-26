@@ -3,15 +3,16 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using Xunit;
 
 namespace Testing {
 
-    class Tests
+    public class Tests
     {
 
-        static void AddOneTaskTest() 
+        [Fact]
+        public void AddOneTaskTest() 
         {
-            Console.WriteLine("AddOneTaskTest:");
             var pool = new ThreadPool.ThreadPool(2);
 
             var helloWorldTask = new ThreadPoolTask<String>(
@@ -23,7 +24,7 @@ namespace Testing {
 
             pool.Enqueue<String>(helloWorldTask);
 
-            Console.WriteLine("- Subtest 0: " + ("Hello World!" == helloWorldTask.Result));
+            Assert.Equal("Hello World!", helloWorldTask.Result);
             
             var throwErrorTask = new ThreadPoolTask<String>(
                 () => {
@@ -37,26 +38,23 @@ namespace Testing {
             try 
             {
                 var res = throwErrorTask.Result;
-                Console.WriteLine("- Subtest 1: " + false);
+                Assert.True(false);
             }
             catch (AggregateException) 
             {
-                Console.WriteLine("- Subtest 1: " + true);
+                Assert.True(true);
             }
             catch (Exception)
             {
-                Console.WriteLine("- Subtest 1: " + false);
+                Assert.True(false);
             }
 
-            Console.WriteLine();
-            
             pool.Dispose();
         }
 
-        static void AddSeveralTasksTest()
+        [Fact]
+        public void AddSeveralTasksTest()
         {
-            Console.WriteLine("AddSeveralTasksTest:");
-            
             var pool = new ThreadPool.ThreadPool(4);
             var answers = new List<int>();
             var tasks = new List<ThreadPoolTask<int>>();
@@ -86,16 +84,14 @@ namespace Testing {
                 pool.Enqueue<int>(tasks[i]);
 
             for (int i = 0; i < taskAmount; i++) 
-                Console.WriteLine("- Subtest " + i + ": " + (answers[i] == tasks[i].Result));
+                Assert.Equal(answers[i], tasks[i].Result);
 
-            Console.WriteLine();
             pool.Dispose();
         }
 
-        static void ContinueWithCheckTest() 
+        [Fact]
+        public void ContinueWithCheckTest() 
         {
-            Console.WriteLine("ContinueWithCheckTest:");
-
             var pool = new ThreadPool.ThreadPool(4);
             var answers = new List<int>();
             var tasks = new List<ThreadPoolTask<int>>();
@@ -132,16 +128,14 @@ namespace Testing {
             }
 
             for (int i = 0; i < taskAmount; i++) 
-                Console.WriteLine("- Subtest " + i + ": " + (answers[i] == nextTasks[i].Result));
+                Assert.Equal(answers[i], nextTasks[i].Result);
         
-            Console.WriteLine();
             pool.Dispose();
         }
 
-        static void ThreadAmountCheckTest() 
+        [Fact]
+        public void ThreadAmountCheckTest() 
         {
-            Console.WriteLine("ThreadAmountCheckTest:");
-
             var pool = new ThreadPool.ThreadPool(4);
             var threadIds = new ConcurrentDictionary<int, bool>();
             var tasks = new List<ThreadPoolTask<int>>();
@@ -169,16 +163,9 @@ namespace Testing {
                 int j = tasks[i].Result;
             }
 
-            Console.WriteLine("- Subtest 0" + ": " + (4 == threadIds.Count));
-            pool.Dispose();
-        }
+            Assert.Equal(4, threadIds.Count);
 
-        static void Main(string[] args)
-        {
-            AddOneTaskTest();
-            AddSeveralTasksTest();
-            ContinueWithCheckTest();
-            ThreadAmountCheckTest();
+            pool.Dispose();
         }
     }
 }

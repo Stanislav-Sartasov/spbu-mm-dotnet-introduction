@@ -3,4 +3,4 @@
 Test samples:
 > cd test 
 
-> dotnet run
+> dotnet test
