@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Application
 {
-    class Program
+    public class Program
     {
         private static readonly string _libraryPath = Path.Combine("..", "..", "..", "CalculatorLib", "bin", "Debug");
         private static readonly string _libraryName = "CalculatorLib.dll";
@@ -71,7 +71,7 @@ namespace Application
             public void SumAll(Type iType, string an, string ap, int a, int b)
             {
                 Assembly.LoadFrom(ap);
-                Console.WriteLine($"SumAll() called in {AppDomain.CurrentDomain} domain");
+                Console.WriteLine($"SumAll() called in {AppDomain.CurrentDomain.FriendlyName} domain");
                 var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => iType.IsAssignableFrom(p) && p.IsClass);
                 foreach (var type in types)
                 {
