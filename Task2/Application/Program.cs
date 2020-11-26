@@ -23,7 +23,7 @@ namespace Application
             {
                 ApplicationBase = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
             };
-            var newDomain = AppDomain.CreateDomain("clc", null, domainSetup);
+            var newDomain = AppDomain.CreateDomain("App", null, domainSetup);
             GetProxyCalculator(newDomain).SumAll(typeof(ICalculator), _assemblyName, Path.Combine(_libraryPath, _libraryName), 12, 13);
             Console.ReadKey();
         }

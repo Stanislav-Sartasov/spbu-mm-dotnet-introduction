@@ -16,9 +16,9 @@ namespace Tests
         });
 
         private readonly string _assemblyLibName = "CalculatorLib";
-        private readonly string _typeNameTrueCalculator = "CalculatorLib.TrueCalculator";
-        private readonly string _typeNamePhylosophyCalculator = "CalculatorLib.PhilosophyCalculator";
-        private readonly string _typeNameUnsageCalculator = "CalculatorLib.UnsafeCalculator";
+        private readonly string _typeNameTrueCalculator = "CalculatorLibrary.TrueCalculator";
+        private readonly string _typeNamePhylosophyCalculator = "CalculatorLibrary.PhilosophyCalculator";
+        private readonly string _typeNameUnsageCalculator = "CalculatorLibrary.UnsafeCalculator";
 
         [Test]
         public void AppDomainUnsafeReadFilePreventTest()
