@@ -1,21 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExpTrees
 {
-    class Program
+    public class ExpressionTreesGenerator
     {
-        static void Main(string[] args)
-        {
-        }
-
-        static Func<List<Queue<SortedList<int, int>>>, int?> GenerateLambda()
+        public static Func<List<Queue<SortedList<int, int>>>, int?> GenerateLambda()
         {
             ParameterExpression collection = Expression.Parameter(typeof(List<Queue<SortedList<int, int>>>), "collection");
             ParameterExpression queue = Expression.Variable(typeof(Queue<SortedList<int, int>>), "queue");
