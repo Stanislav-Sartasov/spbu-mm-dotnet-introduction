@@ -18,20 +18,24 @@ namespace Tests
         public Test()
         {
             filledCollection = new List<Queue<SortedList<int, int>>>();
-            var queue = new Queue<SortedList<int, int>>();
-            var sl = new SortedList<int, int>();
-            sl.Add(0, 42);
-            queue.Enqueue(sl);
-            filledCollection.Add(queue);
+            var que = new Queue<SortedList<int, int>>();
+            var sl = new SortedList<int, int>
+            {
+                { 0, 42 }
+            };
+            que.Enqueue(sl);
+            filledCollection.Add(que);
 
             nullCollection = null;
 
-            hasNullCollection = new List<Queue<SortedList<int, int>>>();
-            hasNullCollection.Add(null);
+            hasNullCollection = new List<Queue<SortedList<int, int>>>
+            {
+                null
+            };
 
             queueHasNullCollection = new List<Queue<SortedList<int, int>>>();
             var queueWithNull = new Queue<SortedList<int, int>>();
-            queue.Enqueue(null);
+            queueWithNull.Enqueue(null);
             queueHasNullCollection.Add(queueWithNull);
 
             lambda = ExpressionTreesGenerator.GenerateLambda();
@@ -40,29 +44,25 @@ namespace Tests
         [Test]
         public void FilledCollectionAccess()
         {
-            int? res = lambda(filledCollection);
-            Assert.AreEqual(42, res.Value);
+            Assert.AreEqual(42, lambda(filledCollection));
         }
 
         [Test]
         public void NullCollectionAccess()
         {
-            int? res = lambda(nullCollection);
-            Assert.AreEqual(null, res.Value);
+            Assert.AreEqual(null, lambda(nullCollection));
         }
 
         [Test]
         public void HasNullCollectionAccess()
         {
-            int? res = lambda(hasNullCollection);
-            Assert.AreEqual(null, res.Value);
+            Assert.AreEqual(null, lambda(hasNullCollection));
         }
 
         [Test]
         public void QueueHasNullCollectionAccess()
         {
-            int? res = lambda(queueHasNullCollection);
-            Assert.AreEqual(null, res.Value);
+            Assert.AreEqual(null, lambda(queueHasNullCollection));
         }
 
     }

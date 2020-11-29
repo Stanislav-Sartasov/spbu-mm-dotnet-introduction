@@ -28,16 +28,19 @@ namespace ExpTrees
 
             var lambda = Expression.Lambda<Func<List<Queue<SortedList<int, int>>>, int?>>(
                 Expression.Block(
-                    collection,
+                    new ParameterExpression[]
+                    {
+                        result,
+                        queue,
+                        sortedList,
+                    },
                     Expression.IfThen(
                         Expression.NotEqual(collection, nullConstant),
                         Expression.Block(
-                            queue,
                             getQueue,
                             Expression.IfThen(
                                 Expression.NotEqual(queue, nullConstant),
                                 Expression.Block(
-                                    sortedList,
                                     getSortedDict,
                                     Expression.IfThen(
                                         Expression.NotEqual(sortedList, nullConstant),
@@ -48,7 +51,8 @@ namespace ExpTrees
                         )
                     ),
                     result
-                )
+                ),
+                new ParameterExpression[] { collection }
             );
             return lambda.Compile();
 
