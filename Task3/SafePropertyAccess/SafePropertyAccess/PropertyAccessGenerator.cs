@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace SafePropertyAccess {
-    public static class PropertyAccessGenerator {
-        public static Func<TObject, TProperty> Generate<TObject, TProperty>(string[] pathComponents) {
-            if (pathComponents.Length == 0) {
+namespace SafePropertyAccess
+{
+    public static class PropertyAccessGenerator
+    {
+        public static Func<TObject, TProperty> Generate<TObject, TProperty>(string[] pathComponents)
+        {
+            if (pathComponents.Length == 0)
+            {
                 throw new ArgumentException("Path cannot be empty");
             }
 
@@ -26,18 +30,21 @@ namespace SafePropertyAccess {
 
         private static Expression ConstructCondition<TProperty>(Queue<string> pathComponents,
             ParameterExpression source,
-            Type sourceType, List<ParameterExpression> variables) {
+            Type sourceType, List<ParameterExpression> variables)
+        {
             var componentName = pathComponents.Dequeue();
             var propertyInfo = sourceType.GetProperty(componentName);
 
-            if (propertyInfo is null) {
+            if (propertyInfo is null)
+            {
                 throw new NullReferenceException($"No {componentName} property in {sourceType}");
             }
 
             var propertyAccess = Expression.Property(source, propertyInfo);
             var accessCondition = Expression.NotEqual(source, Expression.Constant(null));
 
-            if (pathComponents.Count == 0) {
+            if (pathComponents.Count == 0)
+            {
                 var resultProperty = Expression.Parameter(typeof(TProperty), componentName);
                 var resultAssign =
                     Expression.Assign(resultProperty, Expression.TypeAs(propertyAccess, typeof(TProperty)));

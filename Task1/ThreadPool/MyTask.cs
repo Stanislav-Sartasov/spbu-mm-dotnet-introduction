@@ -1,7 +1,9 @@
 using System;
 
-namespace ThreadPool {
-    public class MyTask<TResult> : IMyTask<TResult> {
+namespace ThreadPool
+{
+    public class MyTask<TResult> : IMyTask<TResult>
+    {
         private volatile bool _isCompleted;
         private volatile AggregateException _exception;
         private TResult _result;
@@ -11,10 +13,14 @@ namespace ThreadPool {
         public bool IsCompeted => _isCompleted;
         public Action ActionToPerform => Run;
 
-        public TResult Result {
-            get {
-                while (!_isCompleted) {
-                    if (_exception != null) {
+        public TResult Result
+        {
+            get
+            {
+                while (!_isCompleted)
+                {
+                    if (_exception != null)
+                    {
                         throw _exception;
                     }
                 }
@@ -23,23 +29,28 @@ namespace ThreadPool {
             }
         }
 
-        public MyTask(Func<TResult> func, MyThreadPool threadPool) {
+        public MyTask(Func<TResult> func, MyThreadPool threadPool)
+        {
             _isCompleted = false;
             _func = func;
             _threadPool = threadPool;
         }
 
-        private void Run() {
-            try {
+        private void Run()
+        {
+            try
+            {
                 _result = _func();
                 _isCompleted = true;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 _exception = new AggregateException(e);
             }
         }
 
-        public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func) {
+        public IMyTask<TNewResult> ContinueWith<TNewResult>(Func<TResult, TNewResult> func)
+        {
             return _threadPool.Enqueue(() => func(Result));
         }
     }

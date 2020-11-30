@@ -1,21 +1,27 @@
 using NUnit.Framework;
 using SafePropertyAccess;
 
-namespace SafePropertyAccessTests {
-    public class SafePropertyAccessTest {
-        private class X {
+namespace SafePropertyAccessTests
+{
+    public class SafePropertyAccessTest
+    {
+        private class X
+        {
             private Y _y;
 
-            public Y Y {
+            public Y Y
+            {
                 get => _y;
                 set => _y = value;
             }
         }
 
-        private class Y {
+        private class Y
+        {
             private int _z;
 
-            public int Z {
+            public int Z
+            {
                 get => _z;
                 set => _z = value;
             }
@@ -23,7 +29,8 @@ namespace SafePropertyAccessTests {
 
 
         [Test]
-        public void TestXYZ() {
+        public void TestXYZ()
+        {
             Y y = new Y {Z = 3};
             X x = new X {Y = y};
 
@@ -33,7 +40,8 @@ namespace SafePropertyAccessTests {
         }
 
         [Test]
-        public void TestXYZWithNullY() {
+        public void TestXYZWithNullY()
+        {
             X x = new X {Y = null};
 
             var getProperty = PropertyAccessGenerator.Generate<X, int?>(new[] {"Y", "Z"});
@@ -42,7 +50,8 @@ namespace SafePropertyAccessTests {
         }
 
         [Test]
-        public void TestXYZWithNullX() {
+        public void TestXYZWithNullX()
+        {
             X x = null;
 
             var getProperty = PropertyAccessGenerator.Generate<X, int?>(new[] {"Y", "Z"});
