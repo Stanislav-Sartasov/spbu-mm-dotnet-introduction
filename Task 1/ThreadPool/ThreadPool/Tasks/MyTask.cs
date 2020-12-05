@@ -55,7 +55,10 @@ namespace ThreadPool.Tasks
             }
 
             // Otherwise, just schedule it right away
-            return _scheduler.Enqueue(() => function(Result));
+            IMyTask<TNewResult> scheduledTask = _scheduler.Enqueue(() => function(Result));
+            _children.Add(scheduledTask);
+
+            return scheduledTask;
         }
 
         public override void Run()
