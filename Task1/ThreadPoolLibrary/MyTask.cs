@@ -11,17 +11,22 @@ namespace Task1
         private readonly Func<TResult> _func;
         private Exception _exception;
         private readonly ManualResetEvent _mre = new ManualResetEvent(false);
+        private readonly object _lock = new object();
 
         public TResult Result
         {
             get
             {
                 _mre.WaitOne();
-                if (_exception != null)
+
+                lock (_lock)
                 {
-                    throw new AggregateException("Task failed", _exception);
+                    if (_exception != null)
+                    {
+                        throw new AggregateException("Task failed", _exception);
+                    }
+                    return _result;
                 }
-                return _result;
             }
         }
 
@@ -52,21 +57,25 @@ namespace Task1
 
         public void Run()
         {
-            if (IsCompleted)
-                return;
-            try
+            lock (_lock)
             {
-                _result = _func.Invoke();
-            }
-            catch(Exception e)
-            {
-                _exception = e;
-            }
-            finally
-            {
-                IsCompleted = true;
-                _mre.Set();
 
+                if (IsCompleted)
+                    return;
+                try
+                {
+                    _result = _func.Invoke();
+                }
+                catch (Exception e)
+                {
+                    _exception = e;
+                }
+                finally
+                {
+                    IsCompleted = true;
+                    _mre.Set();
+
+                }
             }
         }
     }
