@@ -56,8 +56,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AccessorGenerator4\AccessorGenerator.csproj">
-      <Project>{6AE84B1A-DF77-44EB-A835-ACE1BF2808ED}</Project>
+    <ProjectReference Include="..\AccessorGenerator\AccessorGenerator.csproj">
+      <Project>{97B78C99-62F3-45DB-81BA-605267EF129B}</Project>
       <Name>AccessorGenerator</Name>
     </ProjectReference>
   </ItemGroup>
