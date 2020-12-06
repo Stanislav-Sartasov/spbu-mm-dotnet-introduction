@@ -3,11 +3,11 @@ using InterfaceLib;
 
 namespace ImplementationLib
 {
-    public class Calculator1: MarshalByRefObject, ICalculator
+    public class Calculator: MarshalByRefObject, ICalculator
     {
         public int Sum(int a, int b)
         {
-            return GenericCalculator<Calculator1>.Sum(a, b);
+            return GenericCalculator<Calculator>.Sum(a, b, -3);
         }
     }
 }

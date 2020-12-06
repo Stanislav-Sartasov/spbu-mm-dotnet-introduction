@@ -4,11 +4,12 @@
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{43BFDD56-CCA8-4A87-9702-742DAB82CEC0}</ProjectGuid>
+        <ProjectGuid>{2735F749-2F18-4712-A20A-FC69021F214B}</ProjectGuid>
+        <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>CalculatorLoader</RootNamespace>
-        <AssemblyName>CalculatorLoader</AssemblyName>
+        <RootNamespace>AppDomainsTests</RootNamespace>
+        <AssemblyName>AppDomainsTests</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
     </PropertyGroup>
@@ -36,12 +37,19 @@
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
         <Reference Include="System.Xml" />
+        <Reference Include="nunit.framework, Version=3.5.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb">
+            <HintPath>..\packages\NUnit.3.5.0\lib\net45\nunit.framework.dll</HintPath>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Impostor.cs" />
+        <Compile Include="AppDomainTest.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\CalculatorLoader\CalculatorLoader.csproj">
+        <Project>{43bfdd56-cca8-4a87-9702-742dab82cec0}</Project>
+        <Name>CalculatorLoader</Name>
+      </ProjectReference>
       <ProjectReference Include="..\InterfaceLib\InterfaceLib.csproj">
         <Project>{dca1e635-be37-41f1-b3cd-b589205f375b}</Project>
         <Name>InterfaceLib</Name>

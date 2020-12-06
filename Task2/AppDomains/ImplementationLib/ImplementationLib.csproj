@@ -38,8 +38,8 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Calculator1.cs" />
-        <Compile Include="Calculator2.cs" />
+        <Compile Include="Calculator.cs" />
+        <Compile Include="YetAnotherCalculator.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="GenericCalculator.cs" />
     </ItemGroup>
