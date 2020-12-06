@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Task1
 {
-    class ThreadPool : IDisposable
+    public class ThreadPool : IDisposable
     {
         private const int _defaultSize = 10;
         private readonly List<Thread> _pool;

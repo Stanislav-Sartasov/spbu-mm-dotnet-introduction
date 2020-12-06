@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Task1", "Task1.csproj", "{12884092-2817-4DB3-AF1B-130059D4FE6E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{D2C74F9E-BD67-49B4-84AE-9593BC69EBE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreadPoolLibrary", "ThreadPoolLibrary\ThreadPoolLibrary.csproj", "{B4E5C856-8CA9-49B5-95DB-698862A25E93}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{12884092-2817-4DB3-AF1B-130059D4FE6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{12884092-2817-4DB3-AF1B-130059D4FE6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{12884092-2817-4DB3-AF1B-130059D4FE6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{12884092-2817-4DB3-AF1B-130059D4FE6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2C74F9E-BD67-49B4-84AE-9593BC69EBE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2C74F9E-BD67-49B4-84AE-9593BC69EBE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2C74F9E-BD67-49B4-84AE-9593BC69EBE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2C74F9E-BD67-49B4-84AE-9593BC69EBE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4E5C856-8CA9-49B5-95DB-698862A25E93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4E5C856-8CA9-49B5-95DB-698862A25E93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4E5C856-8CA9-49B5-95DB-698862A25E93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4E5C856-8CA9-49B5-95DB-698862A25E93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
