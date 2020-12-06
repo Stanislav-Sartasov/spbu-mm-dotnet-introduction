@@ -9,9 +9,9 @@ using System.Security.Policy;
 
 using CalculatorLocation = System.ValueTuple<string, string>;
 
-namespace CalculatorLoader
+namespace Loader
 {
-    class CalculatorLoader : IDisposable
+    public class CalculatorLoader : IDisposable
     {
         private readonly List<AppDomain> _loadedDomains = new List<AppDomain>();
 

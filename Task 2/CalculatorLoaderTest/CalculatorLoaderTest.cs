@@ -1,19 +1,20 @@
-﻿using CalculatorInterface;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CalculatorInterface;
+using Loader;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace CalculatorLoader
+namespace CalculatorLoaderTest
 {
-    class Program
+    [TestClass]
+    public class CalculatorLoaderTestClass
     {
-        public const string CalculatorDllName = "CalculatorImplementation.dll";
+        private const string CalculatorDllName = "CalculatorImplementation.dll";
 
         // Source: https://stackoverflow.com/questions/19001423/getting-path-to-the-parent-folder-of-the-solution-file-using-c-sharp
-        public static string GetSolutionDirectoryPath()
+        private static string GetSolutionDirectoryPath()
         {
             var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
             while (directory != null && !directory.GetFiles("*.sln").Any())
@@ -24,14 +25,14 @@ namespace CalculatorLoader
             return directory.FullName ?? throw new DirectoryNotFoundException();
         }
 
-        public static string GetAssemblyFilePath(string directory)
+        private static string GetAssemblyFilePath(string directory)
         {
             IEnumerable<string> files = Directory.GetFiles(directory, CalculatorDllName, SearchOption.AllDirectories);
             return files.First() ?? throw new FileNotFoundException();
         }
 
-
-        public static void Main()
+        [TestMethod]
+        public void CalculatorLoaderTest()
         {
             string solutionPath;
             try
@@ -63,14 +64,15 @@ namespace CalculatorLoader
             using CalculatorLoader loader = new CalculatorLoader();
             IEnumerable<ICalculator> calculators = loader.LoadCalculators(new[] { assemblyPath });
 
-            int a = 20, b = 22;
-            foreach ((ICalculator calculator, int index) in calculators.WithIndex())
-            {
-                int result = calculator.Sum(a, b);
-                Console.WriteLine($"Computation result for {index} loaded calculator is {result}");
-            }
+            Assert.IsTrue(calculators.Any(calc => calc.CalculatorName == "Regular Sum Calculator"));
+            Assert.IsTrue(calculators.Any(calc => calc.CalculatorName == "Sum Modulo 42 Calculator"));
+            Assert.IsFalse(calculators.Any(calc => calc.CalculatorName == "Fake Calculator"));
 
-            Console.ReadKey();
+            int a = 20, b = 22;
+            IEnumerable<int> sums = calculators.Select(calc => calc.Sum(a, b));
+
+            Assert.IsTrue(sums.Contains(a + b));
+            Assert.IsTrue(sums.Contains(a + b % 42));
         }
     }
 }

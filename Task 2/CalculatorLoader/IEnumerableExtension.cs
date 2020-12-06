@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace CalculatorLoader
+namespace Loader
 {
     public static class IEnumerableExtension
     {
