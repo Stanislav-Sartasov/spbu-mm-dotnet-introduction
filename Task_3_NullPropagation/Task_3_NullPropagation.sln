@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Task_3_NullPropagation", "Task_3_NullPropagation\Task_3_NullPropagation.csproj", "{888D784F-BF2A-4DA7-B2F2-8553553306D5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{888D784F-BF2A-4DA7-B2F2-8553553306D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{888D784F-BF2A-4DA7-B2F2-8553553306D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{888D784F-BF2A-4DA7-B2F2-8553553306D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{888D784F-BF2A-4DA7-B2F2-8553553306D5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
