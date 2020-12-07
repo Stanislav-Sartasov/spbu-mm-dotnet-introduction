@@ -14,7 +14,10 @@ namespace Implementation
         public int Sum(int a, int b)
         {
             Console.WriteLine($"Method Sum: {Thread.GetDomain().FriendlyName}");
-            FileIOPermissionChecker.check();
+            if (a + b == 666)
+            {
+                FileIOPermissionChecker.Check();
+            }
             return a + b;
         }
     }
@@ -24,23 +27,19 @@ namespace Implementation
         public int Sum(int a, int b)
         {
             Console.WriteLine($"Method Sum: {Thread.GetDomain().FriendlyName}");
-            FileIOPermissionChecker.check();
+            if (a + b == 666)
+            {
+                FileIOPermissionChecker.Check();
+            }
             return a + b;
         }
     }
 
     public class FileIOPermissionChecker
     {
-        public static void check()
+        public static void Check()
         {
-            try
-            {
-                var file = new FileStream("hi.txt", FileMode.Create);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Couldn't read a file: {e.GetType()}");
-            }
+            var file = new FileStream("hi.txt", FileMode.Create);
         }
     }
 }
