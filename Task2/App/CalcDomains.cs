@@ -7,15 +7,40 @@ using CalculatorInterface;
 
 namespace App
 {
-    class CalcDomains : MarshalByRefObject
+    class CalcDomains : MarshalByRefObject, IDisposable
     {
-        public void InvokeSumMethods(string assemblyName)
+        List<AppDomain> domains;
+        List<ICalculator> impls;
+
+        public CalcDomains()
         {
+            domains = new List<AppDomain>();
+            impls = new List<ICalculator>();
+        }
+
+        public List<ICalculator> Implementations => impls;
+
+        public void Dispose()
+        {
+            foreach (var dom in domains)
+            {
+                AppDomain.Unload(dom);
+            }
+
+            domains.Clear();
+            impls.Clear();
+        }
+
+        public void FindCalculatorImplementations(string assemblyName)
+        {
+            if (domains.Count > 0 || impls.Count > 0)
+            {
+                throw new Exception("Some assembly is already loaded");
+            }
+
             Console.WriteLine($"InvokeSumMethods(..) domain: {AppDomain.CurrentDomain.FriendlyName}{Environment.NewLine}");
 
             Assembly asmb = Assembly.Load(assemblyName);
-            var domains = new List<AppDomain>();
-            var impls = new List<ICalculator>();
   
             foreach (Type t in asmb.GetTypes())
             {
@@ -28,25 +53,14 @@ namespace App
                 AppDomainSetup domainSetup = new AppDomainSetup();
                 domainSetup.ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
 
-                PermissionSet permissionSet = new PermissionSet(AppDomain.CurrentDomain.PermissionSet);
-                permissionSet.RemovePermission(typeof(FileIOPermission));
+                PermissionSet permissionSet = new PermissionSet(PermissionState.None);
+                permissionSet.AddPermission(new SecurityPermission(SecurityPermissionFlag.Execution));
 
                 AppDomain implDomain = AppDomain.CreateDomain("Domain" + t.Name, null, domainSetup, permissionSet);
                 ICalculator impl = (ICalculator)implDomain.CreateInstanceAndUnwrap(asmb.FullName, t.FullName);
 
                 domains.Add(implDomain);
                 impls.Add(impl);
-            }
-
-            foreach (var impl in impls)
-            {
-                int r = impl.Sum(1, 2);
-                Console.WriteLine($"Result: {r}{Environment.NewLine}");
-            }
-
-            foreach (var dom in domains)
-            {
-                AppDomain.Unload(dom);
             }
         }
     }

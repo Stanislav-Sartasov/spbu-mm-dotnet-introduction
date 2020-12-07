@@ -1,40 +1,26 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using MTP = MyThreadPool;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tests
 {
-    class Program
+    [TestClass]
+    public class UnitTests
     {
-        #region example methods
-        static int CalculateValue()
+        static int WaitAndReturn(int toReturn)
         {
             var random = new Random();
-            int t = random.Next(50, 300);
+            int t = random.Next(10, 60);
 
             Thread.Sleep(t);
 
-            return t;
+            return toReturn;
         }
 
-        static string CreateString(int a)
-        {
-            return "Created string with " + a;
-        }
-
-        static string CreateOtherString(string a)
-        {
-            return "Other " + a;
-        }
-
-        static float ProcessInt(int a)
-        {
-            return a / 7.0f;
-        }
-        #endregion
-
-        static void TestOneTask()
+        [TestMethod]
+        public void TestOneTask()
         {
             MTP.IMyTask<int> task;
 
@@ -42,16 +28,16 @@ namespace Tests
             {
                 pool.Start();
 
-                task = new MTP.MyTask<int>(pool, CalculateValue);
+                task = new MTP.MyTask<int>(pool, () => WaitAndReturn(0));
                 pool.Enqueue(task);
             }
 
-            Console.WriteLine("Completed task: " + task.Result);
-
-            Console.WriteLine();
+            Assert.AreEqual(0, task.Result);
+            Assert.IsTrue(task.IsCompleted);
         }
 
-        static void TestMultipleTask()
+        [TestMethod]
+        public void TestMultipleTask()
         {
             bool done;
             int count = 32;
@@ -63,63 +49,63 @@ namespace Tests
 
                 for (int i = 0; i < count; i++)
                 {
-                    var task = new MTP.MyTask<int>(pool, CalculateValue);
+                    int taskResult = i;
+
+                    var task = new MTP.MyTask<int>(pool, () => WaitAndReturn(taskResult));
                     pool.Enqueue(task);
 
                     tasks[i] = task;
                 }
 
                 // wait until all tasks will be complete
-                bool[] written = new bool[count];
+                bool[] checkedTasks = new bool[count];
                 do
                 {
                     done = true;
 
-                    for (int i = 0; i < count; i++) 
+                    for (int i = 0; i < count; i++)
                     {
                         var t = tasks[i];
                         done = done && t.IsCompleted;
 
-                        if (t.IsCompleted && !written[i])
+                        if (t.IsCompleted && !checkedTasks[i])
                         {
-                            Console.WriteLine($"Completed task #{i}: {t.Result}");
-                            written[i] = true;
+                            Assert.AreEqual(i, t.Result);
+                            checkedTasks[i] = true;
                         }
                     }
 
                 } while (!done);
             }
-
-            Console.WriteLine();
         }
 
-        static void TestContinuation()
+        [TestMethod]
+        public void TestContinuation()
         {
-            MTP.IMyTask<float> contTaskFloat;
+            MTP.IMyTask<int> contTaskInt;
             MTP.IMyTask<string> contTaskStr;
 
             using (var pool = new MTP.ThreadPool(8))
             {
                 pool.Start();
 
-                var task = new MTP.MyTask<int>(pool, CalculateValue);
+                var task = new MTP.MyTask<int>(pool, () => WaitAndReturn(1));
                 pool.Enqueue(task);
 
-                contTaskFloat = task
-                    .ContinueWith(ProcessInt);
+                contTaskInt = task
+                    .ContinueWith(a => a * 2);
 
                 contTaskStr = task
-                    .ContinueWith(CreateString)
-                    .ContinueWith(CreateOtherString);
+                    .ContinueWith(a => "String" + a)
+                    .ContinueWith(a => "Other" + a);
             }
 
-            Console.WriteLine("Completed continued task #0: " + contTaskFloat.Result);
-            Console.WriteLine("Completed continued task #1: " + contTaskStr.Result);
-
-            Console.WriteLine();
+            Assert.AreEqual(2, contTaskInt.Result);
+            Assert.AreEqual("OtherString1", contTaskStr.Result);
         }
 
-        static void TestThreadCount()
+        [TestMethod]
+        public void TestThreadCount()
         {
             int threadCount = 8;
             var threadIds = new HashSet<int>();
@@ -142,19 +128,7 @@ namespace Tests
                 }
             }
 
-            Console.WriteLine("Actual thread number: " + threadCount);
-            Console.WriteLine("Counted thread number: " + threadIds.Count);
-            Console.WriteLine();
-        }
-
-        static int Main(string[] args)
-        {
-            TestOneTask();
-            TestMultipleTask();
-            TestContinuation();
-            TestThreadCount();
-
-            return 0;
+            Assert.AreEqual(threadCount, threadIds.Count);
         }
     }
 }

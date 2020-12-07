@@ -10,19 +10,12 @@ namespace CalculatorImpl
         {
             Console.WriteLine($"Sum(..) is called from: {GetType()}. Domain: {AppDomain.CurrentDomain.FriendlyName}");
 
-            try
+            using (FileStream fs = File.Create("CalculatorFile.txt"))
             {
-                using (FileStream fs = File.Create("CalculatorFile.txt"))
+                using (StreamWriter sw = new StreamWriter(fs))
                 {
-                    using (StreamWriter sw = new StreamWriter(fs))
-                    {
-                        sw.WriteLine("Sum");
-                    }
+                    sw.WriteLine("Sum");
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Exception in Sum(..): {e.Message}");
             }
 
             return a + b;
