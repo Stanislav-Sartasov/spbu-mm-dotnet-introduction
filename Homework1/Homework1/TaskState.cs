@@ -4,7 +4,6 @@ namespace Homework1
     {
         WaitingForDependency,
         Ready,
-        Executing,
         Finished,
         Crashed
     }

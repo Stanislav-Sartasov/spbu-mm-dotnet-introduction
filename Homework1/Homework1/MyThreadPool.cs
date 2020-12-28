@@ -89,6 +89,7 @@ namespace Homework1
             }
 
             dependency.TaskCompletedEvent += MarkTaskAsReady;
+            if (dependency.IsCompleted) MarkTaskAsReady();
             Queue.Add(task, CancellationToken);
             return task;
         }

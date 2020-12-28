@@ -8,7 +8,7 @@ namespace Homework1
         private MyThreadPool Pool { get; }
         private ManualResetEventSlim TaskCompletedAwaitPoint { get; } = new();
         internal event Action TaskCompletedEvent;
-        public TaskState State { get; internal set; } = TaskState.Executing;
+        public TaskState State { get; internal set; } = TaskState.Ready;
         private T MyResult { get; set; }
         private Exception CrashReason { get; set; }
         private Func<T> Delegate { get; }
@@ -19,7 +19,7 @@ namespace Homework1
             Delegate = myDelegate;
         }
 
-        public bool IsCompleted => State != TaskState.Executing;
+        public bool IsCompleted => State == TaskState.Finished || State == TaskState.Crashed;
 
         public T Result
         {
@@ -28,10 +28,11 @@ namespace Homework1
                 switch (State)
                 {
                     case TaskState.WaitingForDependency:
-                    case TaskState.Ready:
-                    case TaskState.Executing:
                         TaskCompletedAwaitPoint.Wait();
-                        return Result;
+                        return MyResult;
+                    case TaskState.Ready:
+                        TaskCompletedAwaitPoint.Wait();
+                        return MyResult;
                     case TaskState.Finished:
                         return MyResult!;
                     case TaskState.Crashed:
