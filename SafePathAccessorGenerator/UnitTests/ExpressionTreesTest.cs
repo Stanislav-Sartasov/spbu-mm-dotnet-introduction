@@ -30,8 +30,6 @@ namespace UnitTests
     }
 
 
-
-
     [TestClass]
     public class ExpressionTreesTest
     {
@@ -46,8 +44,6 @@ namespace UnitTests
 
             Assert.AreEqual(null, OutOfRangeAccessFunction1(nestedArrays));
             Assert.AreEqual(null, OutOfRangeAccessFunction2(nestedArrays));
-
-
         }
 
         [TestMethod]
@@ -61,7 +57,6 @@ namespace UnitTests
 
             Assert.AreEqual(1, SuccessfulAccessFunction1(nestedArrays));
             Assert.AreEqual(3, SuccessfulAccessFunction2(nestedArrays));
-
         }
 
         [TestMethod]
@@ -75,7 +70,6 @@ namespace UnitTests
 
             Assert.AreEqual(null, NullFindingAccessFunction1(nestedArrays));
             Assert.AreEqual(null, NullFindingAccessFunction2(nestedArrays));
-
         }
 
         [TestMethod]

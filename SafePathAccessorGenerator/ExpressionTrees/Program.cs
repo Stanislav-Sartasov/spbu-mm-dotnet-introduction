@@ -16,20 +16,19 @@ namespace ExpressionTrees
         }
     }
 
-    struct Accessor
-    {
-        public readonly string fieldName;
-        public readonly int index;
-
-        public Accessor(string fieldName, int index)
-        {
-            this.fieldName = fieldName;
-            this.index = index;
-        }
-    }
-
     public class AccessorGenerator<TGiven, TReaching>
     {
+        private struct Accessor
+        {
+            public readonly string fieldName;
+            public readonly int index;
+
+            public Accessor(string fieldName, int index)
+            {
+                this.fieldName = fieldName;
+                this.index = index;
+            }
+        }
         public Func<TGiven, TReaching> generateAccessor(TGiven instance, string path)
         {
             // Lambda input
