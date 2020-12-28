@@ -4,11 +4,12 @@
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{D872E038-1849-4DDA-86F8-5FE6B3351FEB}</ProjectGuid>
-        <OutputType>Exe</OutputType>
+        <ProjectGuid>{506FA905-E1A0-4D40-AAC9-5EE3596CC553}</ProjectGuid>
+        <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+        <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>Application</RootNamespace>
-        <AssemblyName>Application</AssemblyName>
+        <RootNamespace>Tests</RootNamespace>
+        <AssemblyName>Tests</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
         <LangVersion>8</LangVersion>
@@ -37,14 +38,19 @@
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
         <Reference Include="System.Xml" />
+        <Reference Include="nunit.framework, Version=3.5.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb">
+            <HintPath>..\packages\NUnit.3.5.0\lib\net45\nunit.framework.dll</HintPath>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="PluginData.cs" />
-        <Compile Include="PluginLoader.cs" />
-        <Compile Include="Program.cs" />
+        <Compile Include="Tests.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\Application\Application.csproj">
+        <Project>{d872e038-1849-4dda-86f8-5fe6b3351feb}</Project>
+        <Name>Application</Name>
+      </ProjectReference>
       <ProjectReference Include="..\CalculatorInterface\CalculatorInterface.csproj">
         <Project>{712b1905-dece-4029-ade1-afd692d30846}</Project>
         <Name>CalculatorInterface</Name>

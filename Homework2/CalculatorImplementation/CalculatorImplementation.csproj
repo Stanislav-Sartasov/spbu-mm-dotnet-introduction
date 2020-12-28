@@ -40,7 +40,6 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Calculator.cs" />
-        <Compile Include="DeeplyBrokenCalculator.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="SuspiciousCalculator.cs" />
     </ItemGroup>
