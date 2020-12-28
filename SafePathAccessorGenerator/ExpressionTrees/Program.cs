@@ -7,15 +7,6 @@ using System.Threading.Tasks;
 
 namespace ExpressionTrees
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-
-
-        }
-    }
-
     public class AccessorGenerator<TGiven, TReaching>
     {
         private struct Accessor
